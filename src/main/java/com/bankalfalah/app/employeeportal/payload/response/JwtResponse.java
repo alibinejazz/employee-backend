@@ -9,6 +9,7 @@ public class JwtResponse {
   private String username;
   private String email;
   private List<String> roles;
+  private String fullName;
 
   public JwtResponse(String accessToken, Long id, String username, String email, List<String> roles) {
     this.token = accessToken;
@@ -60,5 +61,13 @@ public class JwtResponse {
 
   public List<String> getRoles() {
     return roles;
+  }
+
+  public String getFullName() {
+    return fullName;
+  }
+
+  public void setFullName(String name) {
+    this.fullName = name;
   }
 }

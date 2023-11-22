@@ -66,9 +66,10 @@ public class AuthController {
     UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
     List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority())
         .collect(Collectors.toList());
-
+    JwtResponse resp = new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles);
+    resp.setFullName(userDetails.getUserFullName());
     return ResponseEntity
-        .ok(new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles));
+        .ok(resp);
   }
 
   @PostMapping("/resetpassword")
@@ -90,13 +91,13 @@ public class AuthController {
           obUser.setPassword(encoder.encode(passwordRequest.getPassword()));
           obUser.setOtp(null);
           userRepository.save(obUser);
-          message = "Password reset succesfully!";
+          message = "All Done!";
       }else{
-          message = "Password is empty";  
+          message = "Error: Password is empty";  
       }
       
     }else{
-      message = "Incorrect OTP.";  
+      message = "Error:Incorrect OTP.";  
       return ResponseEntity.badRequest().body(new MessageResponse(message));
     }
 
@@ -117,9 +118,11 @@ public class AuthController {
     }
 
     // Create new user's account
-    User user = new User(signUpRequest.getUsername(), signUpRequest.getEmail(),
-        encoder.encode(signUpRequest.getPassword()));
+    User user = new User(signUpRequest.getUsername(), signUpRequest.getEmail(),"");
         user.setFullName(signUpRequest.getFullName());
+
+      String otp = String.format("%04d", new Random().nextInt(10000));
+      user.setOtp(otp);
 
 
     Set<String> strRoles = signUpRequest.getRole();
